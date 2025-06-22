@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>$FEST Portal – Books & Videos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f0f0f; color: #fff; text-align: center; margin: 0; padding: 0; }
+        header { background: #1a1a1a; padding: 20px; font-size: 24px; }
+        section { padding: 30px; }
+        button { padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
+        .locked { filter: blur(8px); pointer-events: none; user-select: none; }
+    </style>
+</head>
+<body>
+    <header>
+        💰 $FEST Coin Portal – Unlock Knowledge
+    </header>
+
+    <section>
+        <h2>Welcome to the $FEST Knowledge Vault</h2>
+        <p>Connect your Phantom Wallet to unlock books & videos. Minimum 10 $FEST required.</p>
+        <button onclick="connectWallet()">🔗 Connect Wallet</button>
+        <p id="wallet-status"></p>
+
+        <div id="content" class="locked">
+            <h3>📘 Featured Book: Divine Wealth eBook</h3>
+            <a href="books/sample-ebook.pdf" target="_blank">Download PDF</a>
+            <h3>🎥 Private Video: Trust Law Breakdown</h3>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                frameborder="0" allowfullscreen></iframe>
+        </div>
+    </section>
+
+    <script>
+        const MIN_FEST_BALANCE = 10;
+        const FEST_MINT = 'HgeiiagUMPDzB4Cuks9GP3EzBA1EZXivQyMXra5JLjmD';
+
+        async function connectWallet() {
+            if (!window.solana) {
+                alert('Phantom Wallet not found. Please install it.');
+                return;
+            }
+
+            try {
+                const resp = await window.solana.connect();
+                const publicKey = resp.publicKey.toString();
+                document.getElementById('wallet-status').innerText = 'Connected: ' + publicKey;
+
+                // Check $FEST balance
+                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+                const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+                    new solanaWeb3.PublicKey(publicKey),
+                    { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") }
+                );
+
+                let festBalance = 0;
+                tokenAccounts.value.forEach((tokenAccountInfo) => {
+                    const info = tokenAccountInfo.account.data.parsed.info;
+                    if (info.mint === FEST_MINT) {
+                        festBalance = parseFloat(info.tokenAmount.uiAmount);
+                    }
+                });
+
+                if (festBalance >= MIN_FEST_BALANCE) {
+                    document.getElementById('content').classList.remove('locked');
+                } else {
+                    alert('You need at least 10 $FEST to unlock this content.');
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert('Wallet connection failed.');
+            }
+        }
+    </script>
+</body>
+</html>
