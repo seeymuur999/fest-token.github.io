@@ -1,0 +1,53 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    font-family: 'Press Start 2P', cursive;
+    background: linear-gradient(135deg, #ff33cc, #3333ff);
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+}
+
+header {
+    background: #000;
+    color: #00ffff;
+    padding: 20px;
+    font-size: 18px;
+    border-bottom: 4px dashed #ffcc00;
+}
+
+section {
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.85);
+    margin: 20px auto;
+    width: 90%;
+    max-width: 800px;
+    border: 4px double #00ffcc;
+    border-radius: 15px;
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 14px;
+    background: #ffcc00;
+    color: #000;
+    border: 3px ridge #000;
+    margin: 20px 0;
+    cursor: pointer;
+}
+
+.locked {
+    filter: blur(6px);
+    pointer-events: none;
+    user-select: none;
+}
+
+a, iframe {
+    display: block;
+    margin: 10px auto;
+    color: #00ffff;
+    text-decoration: none;
+}
