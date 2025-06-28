@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>$FEST Token Gated Library</title>
+  <style>
+    body {
+      background-color: #0a0a1f;
+      color: #fff;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-align: center;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(to right, #4b0082, #000);
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2.2em;
+      text-shadow: 0 0 10px #00ffea;
+    }
+    .logo {
+      width: 150px;
+    }
+    .spinner {
+      margin: 20px auto;
+      animation: spin 3s linear infinite;
+      width: 80px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    button, a.button {
+      display: inline-block;
+      margin: 10px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      background: #00ffea;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00ffea;
+      text-decoration: none;
+    }
+    .hidden {
+      display: none;
+    }
+    section {
+      margin: 30px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="assets/credit_manifest_logo.png" class="logo" alt="Credit Manifest Logo"/>
+    <h1>Welcome to the $FEST Trust Portal</h1>
+  </header>
+
+  <section>
+    <img src="assets/credit_manifest_logo.png" class="spinner" alt="Loading..."/>
+    <div id="status">🔒 Connect wallet & pay 10 $FEST to unlock books</div>
+    <button onclick="connectWallet()">Connect Wallet</button>
+  </section>
+
+  <section>
+    <div id="bookLinks" class="hidden">
+      <h2>📘 Unlocked eBooks</h2>
+      <a class="button" href="#">Trump Hidden Agenda</a>
+      <a class="button" href="#">Money is Credit</a>
+      <a class="button" href="#">Debt Discharge</a>
+      <a class="button" href="#">Trust Law</a>
+    </div>
+  </section>
+
+  <script type="module">
+    import {
+      Connection,
+      PublicKey,
+      clusterApiUrl,
+      Transaction,
+      SystemProgram
+    } from "https://cdn.skypack.dev/@solana/web3.js";
+
+    const FEST_TOKEN = "5i1GML9nsJUgrgegBfwt67x7Bct8weCGQSfvxgwEpump";
+    const TREASURY = "HgeiiagUMPDzB4Cuks9GP3EzBA1EZXivQyMXra5JLjmD";
+
+    async function connectWallet() {
+      const provider = window.solana;
+      if (!provider || !provider.isPhantom) {
+        alert("Please install Phantom Wallet");
+        return;
+      }
+
+      try {
+        const resp = await provider.connect();
+        const pubKey = resp.publicKey.toString();
+        document.getElementById("status").innerText = "Connected: " + pubKey;
+
+        // Simulate $FEST token transaction (replace with actual SPL logic for full integration)
+        const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
+        const transaction = new Transaction().add(
+          SystemProgram.transfer({
+            fromPubkey: new PublicKey(pubKey),
+            toPubkey: new PublicKey(TREASURY),
+            lamports: 10000 // simulate transaction
+          })
+        );
+
+        transaction.feePayer = new PublicKey(pubKey);
+        const { blockhash } = await connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhash;
+
+        const signed = await provider.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(signature);
+
+        document.getElementById("status").innerText = "✅ 10 $FEST sent! Books unlocked.";
+        document.getElementById("bookLinks").classList.remove("hidden");
+
+      } catch (err) {
+        console.error("Transaction error:", err);
+        document.getElementById("status").innerText = "❌ Payment failed or rejected.";
+      }
+    }
+  </script>
+</body>
+</html>
